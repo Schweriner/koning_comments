@@ -1,16 +1,21 @@
 plugin.tx_koningcomments {
     view {
        templateRootPaths {
-            10 = {$plugin.tx_koningcomments.view.templateRootPath}
+            10 = EXT:koning_comments/Resources/Private/Templates
+            20 = {$plugin.tx_koningcomments.view.templateRootPath}
         }
         partialRootPaths {
-            10 = {$plugin.tx_koningcomments.view.partialRootPath}
+            10 = EXT:koning_comments/Resources/Private/Partials
+            20 = {$plugin.tx_koningcomments.view.partialRootPath}
         }
         layoutRootPaths {
-            10 = {$plugin.tx_koningcomments.view.layoutRootPath}
+            10 = EXT:koning_comments/Resources/Private/Layouts
+            20 = {$plugin.tx_koningcomments.view.layoutRootPath}
         }
     }
     settings {
         enableModeration = {$plugin.tx_koningcomments.settings.enableModeration}
+        allowCommentsForNonFeUsers = {$plugin.tx_koningcomments.settings.allowCommentsForNonFeUsers}
+        enableModerationForFeUsers = {$plugin.tx_koningcomments.settings.enableModerationForFeUsers}
     }
 }

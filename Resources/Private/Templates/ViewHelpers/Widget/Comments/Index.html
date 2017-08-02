@@ -1,33 +1,62 @@
 <div class="koning-comments">
+
     <f:render section="Comments" arguments="{
         comments: comments,
         userIsLoggedIn: userIsLoggedIn,
         enableCommenting: enableCommenting,
-        argumentPrefix: argumentPrefix
+        argumentPrefix: argumentPrefix,
+        allowCommentsForNonFeUsers: allowCommentsForNonFeUsers
     }" />
 
     <hr>
 
+    <f:flashMessages />
+
     <f:render section="Form" arguments="{
         userIsLoggedIn: userIsLoggedIn,
         enableCommenting: enableCommenting,
-        argumentPrefix: argumentPrefix
+        argumentPrefix: argumentPrefix,
+        allowCommentsForNonFeUsers: allowCommentsForNonFeUsers
     }" />
 
     <f:section name="Form">
         <f:if condition="{enableCommenting}">
             <f:if condition="{userIsLoggedIn}">
                 <f:then>
-                    <f:form actionUri="{f:widget.uri(action: 'create')}" fieldNamePrefix="{argumentPrefix}">
-                        <f:form.hidden name="replyTo" value="{replyTo}" />
+                    <f:form actionUri="{f:widget.uri(action: 'create')}" fieldNamePrefix="{argumentPrefix}" name="comment" object="{comment}">
+                        <f:form.hidden name="action" value="create" />
+                        <f:form.hidden property="replyTo" value="{replyTo}" />
                         <div class="form-group">
-                            <f:form.textarea name="body" class="form-control" />
+                            <f:form.textarea property="body" class="form-control" />
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <f:translate id="send" />
                         </button>
                     </f:form>
                 </f:then>
+                <f:else if="{allowCommentsForNonFeUsers}">
+                    <f:form actionUri="{f:widget.uri(action: 'create')}" fieldNamePrefix="{argumentPrefix}" name="comment" object="{comment}">
+                        <f:form.hidden name="action" value="create" />
+                        <f:form.hidden name="replyTo" value="{replyTo}" />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <f:form.textfield property="nonuserUsername" class="form-control" placeholder="{f:translate(key: 'nonuserUsername')}" />
+                            </div>
+                            <div class="col-md-4">
+                                <f:form.textfield property="nonuserEmail" class="form-control" placeholder="{f:translate(key: 'nonuserEmail')}" />
+                            </div>
+                            <div class="col-md-4">
+                                <f:form.textfield property="nonuserWww" class="form-control" placeholder="{f:translate(key: 'nonuserWww')}" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <f:form.textarea name="body" class="form-control" placeholder="{f:translate(key: 'commentBody')}" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <f:translate id="send" />
+                        </button>
+                    </f:form>
+                </f:else>
                 <f:else>
                     <f:translate id="needs_login" />
                 </f:else>
@@ -44,7 +73,9 @@
                             comment: comment,
                             userIsLoggedIn: userIsLoggedIn,
                             enableCommenting: enableCommenting,
-                            argumentPrefix: argumentPrefix}" />
+                            argumentPrefix: argumentPrefix,
+                            allowCommentsForNonFeUsers: allowCommentsForNonFeUsers
+                        }" />
                     </f:for>
                 </ol>
             </f:then>
@@ -56,7 +87,14 @@
 
     <f:section name="Comment">
         <li id="koning-comment-{comment.uid}">
-            <h3>{comment.user.firstName} {comment.user.lastName}</h3>
+            <f:if condition="{comment.user}">
+                <f:then>
+                    <h3>{comment.user.firstName} {comment.user.lastName}</h3>
+                </f:then>
+                <f:else>
+                    <h3>{comment.nonuserUsername}</h3>
+                </f:else>
+            </f:if>
             <time><f:format.date format="%e %B %Y %H:%M">{comment.date}</f:format.date></time>
             <p>
                 <f:format.nl2br>{comment.body}</f:format.nl2br>
@@ -69,7 +107,8 @@
                     userIsLoggedIn: userIsLoggedIn,
                     enableCommenting: enableCommenting,
                     argumentPrefix: argumentPrefix,
-                    replyTo: comment
+                    replyTo: comment,
+                    allowCommentsForNonFeUsers: allowCommentsForNonFeUsers
                 }" />
             </div>
             <f:if condition="{comment.replies}">
@@ -77,7 +116,8 @@
                     comments: comment.replies,
                     userIsLoggedIn: userIsLoggedIn,
                     enableCommenting: enableCommenting,
-                    argumentPrefix: argumentPrefix
+                    argumentPrefix: argumentPrefix,
+                    allowCommentsForNonFeUsers: allowCommentsForNonFeUsers
                 }" />
             </f:if>
         </li>

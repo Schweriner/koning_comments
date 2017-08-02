@@ -1,6 +1,8 @@
 <?php
 namespace KoninklijkeCollective\KoningComments\ViewHelpers\Widget\Controller;
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Comment widget controller
  *
@@ -23,6 +25,8 @@ class CommentsController extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetCont
      */
     protected $sort;
 
+    protected $argumentPrefix = '';
+
     /**
      * @return void
      */
@@ -43,53 +47,107 @@ class CommentsController extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetCont
     }
 
     /**
+     * @param \KoninklijkeCollective\KoningComments\Domain\Model\Comment $comment
      * @return void
      */
-    public function indexAction()
+    public function indexAction(\KoninklijkeCollective\KoningComments\Domain\Model\Comment $comment = null)
     {
+        \TYPO3\CMS\Extbase\Utility\DebuggerUtility::var_dump($this->controllerContext->getRequest()->getArgumentPrefix());
+        $settings = $this->getSettings();
         $this->view->assignMultiple([
             'comments' => $this->getCommentRepository()->findTopLevelCommentsByUrl($this->url, $this->sort),
             'enableCommenting' => $this->enableCommenting,
             'userIsLoggedIn' => $this->getTypoScriptFrontendController()->loginUser,
-            'argumentPrefix' => $this->controllerContext->getRequest()->getArgumentPrefix()
+            'argumentPrefix' => $this->controllerContext->getRequest()->getArgumentPrefix(),
+            'allowCommentsForNonFeUsers' => $settings['allowCommentsForNonFeUsers']
         ]);
     }
 
+    public function initializeCreateAction() {
+        /**
+         * TODO: For any reasons I've to allow comment creation here but I don't know why
+         */
+        if($this->arguments->hasArgument('comment')) {
+            $propertyMappingConfiguration = $this->arguments->getArgument('comment')->getPropertyMappingConfiguration();
+            $propertyMappingConfiguration->allowProperties(
+                'replyTo',
+                'nonuserUsername',
+                'nonuserEmail',
+                'nonuserWww',
+                'body'
+            );
+            $propertyMappingConfiguration->setTypeConverterOption(\TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::class, \TYPO3\CMS\Extbase\Property\TypeConverter\PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED, true);
+        }
+    }
+
+
     /**
-     * @param string $body
-     * @param \KoninklijkeCollective\KoningComments\Domain\Model\Comment $replyTo
-     * @validate $body NotEmpty
+     * @param \KoninklijkeCollective\KoningComments\Domain\Model\Comment $comment
+     * @validate $comment KoninklijkeCollective.KoningComments:CommentCheck
      * @return void
      */
-    public function createAction($body, $replyTo = null)
+    public function createAction(\KoninklijkeCollective\KoningComments\Domain\Model\Comment $comment)
     {
-        $userUid = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
 
         $settings = $this->getSettings();
-        if (!isset($settings['enableModeration'])) {
-            $settings['enableModeration'] = 0;
-        }
+        $userLoggedIn = false;
+        $moderationRequired = true;
 
-        /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user */
-        $user = $this->getFrontendUserRepository()->findByUid($userUid);
-        if ($user !== null) {
-            $comment = new \KoninklijkeCollective\KoningComments\Domain\Model\Comment();
-            $comment->setBody($body);
-            $comment->setUrl($this->url);
-            $comment->setUser($user);
-            $comment->setPid($this->getTypoScriptFrontendController()->contentPid);
-            $comment->setReplyTo($replyTo);
-            $comment->setHidden((bool)$settings['enableModeration']);
-            $comment->setDate(new \DateTime());
-            $this->getCommentRepository()->add($comment);
-            $this->getPersistenceManager()->persistAll();
-
-            $this->signalSlotDispatcher->dispatch(__CLASS__, 'afterCommentCreated', [$this->settings, $comment]);
-
-            \TYPO3\CMS\Core\Utility\HttpUtility::redirect($this->url . '#koning-comment-' . $comment->getUid());
-        } else {
+        // Access check
+        if(false === ($userLoggedIn = $this->getTypoScriptFrontendController()->loginUser)
+            && false === (bool) $settings['allowCommentsForNonFeUsers']) {
+            $this->addFlashMessage(\TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate('needs_login', 'koning_comments'));
             \TYPO3\CMS\Core\Utility\HttpUtility::redirect($this->url);
         }
+
+        /****
+         * Comment Validation
+         * @TODO Should take place in an Validator
+         * but validators seems to work else than in default ActionControllers here in an WidgetController
+         * When adding a Validator to annotations it will be validated but there is no way to access the errors in default action again
+         */
+
+        if(trim($comment->getBody()) === ''
+            || (false === $userLoggedIn && trim($comment->getNonuserUsername())==='')
+            || (false === $userLoggedIn && false === GeneralUtility::validEmail($comment->getNonuserEmail()))) {
+            $this->addFlashMessage(
+                \TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate('generic_validation_error', 'koning_comments'),
+                '',
+                \TYPO3\CMS\Core\Messaging\AbstractMessage::ERROR
+            );
+            $this->redirect('index');
+        }
+
+        if($this->getTypoScriptFrontendController()->loginUser) {
+            $userUid = $this->getTypoScriptFrontendController()->fe_user->user['uid'];
+            /** @var \TYPO3\CMS\Extbase\Domain\Model\FrontendUser $user */
+            $user = $this->getFrontendUserRepository()->findByUid($userUid);
+            $comment->setUser($user);
+        }
+
+        if(true === $userLoggedIn) {
+            if (!isset($settings['enableModeration'])) {
+                $settings['enableModeration'] = 0;
+            }
+            $moderationRequired = (bool) $settings['enableModeration'];
+        } else {
+            if (!isset($settings['enableModerationForFeUsers'])) {
+                $settings['enableModerationForFeUsers'] = 0;
+            }
+            $moderationRequired = (bool) $settings['enableModerationForFeUsers'];
+        }
+
+        $comment->setUrl($this->url);
+        $comment->setPid($this->getTypoScriptFrontendController()->contentPid);
+        $comment->setHidden($moderationRequired);
+        $comment->setDate(new \DateTime());
+        $this->getCommentRepository()->add($comment);
+        $this->getPersistenceManager()->persistAll();
+
+        $this->signalSlotDispatcher->dispatch(__CLASS__, 'afterCommentCreated', [$this->settings, $comment]);
+
+        \TYPO3\CMS\Core\Utility\HttpUtility::redirect($this->url . '#koning-comment-' . $comment->getUid());
+
     }
 
     /**

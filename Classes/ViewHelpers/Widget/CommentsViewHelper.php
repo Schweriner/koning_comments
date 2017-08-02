@@ -28,14 +28,24 @@ class CommentsViewHelper extends \TYPO3\CMS\Fluid\Core\Widget\AbstractWidgetView
     protected $controller;
 
     /**
-     * Render commenting functionality
+     * Initialize arguments.
      *
-     * @param string $url
-     * @param bool $enableCommenting
-     * @param string $sort
-     * @return \TYPO3\CMS\Extbase\Mvc\ResponseInterface
+     * @api
+     * @throws \TYPO3Fluid\Fluid\Core\ViewHelper\Exception
      */
-    public function render($url = '', $enableCommenting = true, $sort = 'DESC')
+    public function initializeArguments()
+    {
+        parent::initializeArguments();
+        $this->registerArgument('url', 'string', 'URL to store with the comment', false);
+        $this->registerArgument('enableCommenting', 'boolean', 'enablecommenting', false, true);
+        $this->registerArgument('sort', 'string', 'sorting direction', false, 'DESC');
+    }
+
+    /**
+     * Render commenting functionality
+     * @return string
+     */
+    public function render()
     {
         return $this->initiateSubRequest();
     }

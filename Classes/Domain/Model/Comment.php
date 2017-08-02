@@ -29,6 +29,21 @@ class Comment extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     protected $user;
 
     /**
+     * @var string
+     */
+    protected $nonuserUsername = '';
+
+    /**
+     * @var string
+     */
+    protected $nonuserEmail = '';
+
+    /**
+     * @var string
+     */
+    protected $nonuserWww = '';
+
+    /**
      * @var \KoninklijkeCollective\KoningComments\Domain\Model\Comment
      */
     protected $replyTo;
@@ -169,5 +184,53 @@ class Comment extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     public function setHidden($hidden)
     {
         $this->hidden = $hidden;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonuserUsername()
+    {
+        return $this->nonuserUsername;
+    }
+
+    /**
+     * @param string $nonuserUsername
+     */
+    public function setNonuserUsername($nonuserUsername)
+    {
+        $this->nonuserUsername = $nonuserUsername;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonuserEmail()
+    {
+        return $this->nonuserEmail;
+    }
+
+    /**
+     * @param string $nonuserEmail
+     */
+    public function setNonuserEmail($nonuserEmail)
+    {
+        $this->nonuserEmail = $nonuserEmail;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNonuserWww()
+    {
+        return $this->nonuserWww;
+    }
+
+    /**
+     * @param string $nonuserWww
+     */
+    public function setNonuserWww($nonuserWww)
+    {
+        $this->nonuserWww = $nonuserWww;
     }
 }

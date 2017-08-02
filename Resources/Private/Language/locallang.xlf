@@ -15,6 +15,24 @@
             <trans-unit id="send">
                 <source>Send</source>
             </trans-unit>
+            <trans-unit id="nonuserUsername">
+                <source>Your name</source>
+            </trans-unit>
+            <trans-unit id="nonuserEmail">
+                <source>Email address</source>
+            </trans-unit>
+            <trans-unit id="nonuserWww">
+                <source>Website url</source>
+            </trans-unit>
+            <trans-unit id="commentBody">
+                <source>Your comment</source>
+            </trans-unit>
+            <trans-unit id="error_notvalidatable">
+                <source>The given object cannot be validated</source>
+            </trans-unit>
+            <trans-unit id="generic_validation_error">
+                <source>Your comment can not be empty. As unregistered user you also have to enter a name and an valid email address.</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

@@ -22,11 +22,11 @@ return [
         'iconfile' => 'EXT:koning_comments/Resources/Public/Icons/tx_koningcomments_domain_model_comment.png',
     ],
     'interface' => [
-        'showRecordFieldList' => 'hidden, date, url, body, user, reply_to, replies'
+        'showRecordFieldList' => 'hidden, date, url, body, user, nonuser_username, nonuser_email, nonuser_www, reply_to, replies'
     ],
     'types' => [
         0 => [
-            'showitem' => 'hidden, date, url, body, user, reply_to, replies'
+            'showitem' => 'hidden, date, url, body, user, nonuser_username, nonuser_email, nonuser_www, reply_to, replies'
         ]
     ],
     'palettes' => [],
@@ -68,9 +68,33 @@ return [
                 'type' => 'group',
                 'internal_type' => 'db',
                 'allowed' => 'fe_users',
-                'minitems' => 1,
+                'minitems' => 0,
                 'maxitems' => 1,
                 'size' => 1
+            ]
+        ],
+        'nonuser_username' => [
+            'exclude' => 0,
+            'label' => 'LLL:EXT:koning_comments/Resources/Private/Language/locallang_be.xlf:tx_koningcomments_domain_model_comment.nonuser_username',
+            'config' => [
+                'type' => 'input',
+                'eval' => 'trim',
+            ]
+        ],
+        'nonuser_email' => [
+            'exclude' => 0,
+            'label' => 'LLL:EXT:koning_comments/Resources/Private/Language/locallang_be.xlf:tx_koningcomments_domain_model_comment.nonuser_email',
+            'config' => [
+                'type' => 'input',
+                'eval' => 'trim,email',
+            ]
+        ],
+        'nonuser_www' => [
+            'exclude' => 0,
+            'label' => 'LLL:EXT:koning_comments/Resources/Private/Language/locallang_be.xlf:tx_koningcomments_domain_model_comment.nonuser_www',
+            'config' => [
+                'type' => 'input',
+                'eval' => 'trim',
             ]
         ],
         'reply_to' => [

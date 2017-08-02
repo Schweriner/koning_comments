@@ -15,6 +15,9 @@ CREATE TABLE tx_koningcomments_domain_model_comment (
     url tinytext,
     body text,
     user int(11) DEFAULT '0' NOT NULL,
+    nonuser_username varchar(255) DEFAULT '' NOT NULL,
+    nonuser_email varchar(255) DEFAULT '' NOT NULL,
+    nonuser_www varchar(255) DEFAULT '' NOT NULL,
     reply_to int(11) DEFAULT '0' NOT NULL,
     replies int(11) DEFAULT '0' NOT NULL,
 

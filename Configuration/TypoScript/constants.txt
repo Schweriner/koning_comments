@@ -1,10 +1,18 @@
 plugin.tx_koningcomments {
     view {
+        # cat=plugin.tx_koningcomments/file; type=string; label=Path to template root (FE)
         templateRootPaths = EXT:koning_comments/Resources/Private/Templates
+        # cat=plugin.tx_koningcomments/file; type=string; label=Path to partial root (FE)
         partialRootPaths = EXT:koning_comments/Resources/Private/Partials
+        # cat=plugin.tx_koningcomments/file; type=string; label=Path to partial root (FE)
         layoutRootPaths = EXT:koning_comments/Resources/Private/Layouts
     }
     settings {
+        # cat=plugin.tx_koningcomments/settings; type=boolean; label=Enable moderation for comments from fe_users
         enableModeration = 0
+        # cat=plugin.tx_koningcomments/settings; type=boolean; label=Allow non fe_users to create comments?
+        allowCommentsForNonFeUsers = 0
+        # cat=plugin.tx_koningcomments/settings; type=boolean; label=Enable moderation for comments from non-fe_users
+        enableModerationForFeUsers = 1
     }
 }

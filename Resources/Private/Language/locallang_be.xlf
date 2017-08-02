@@ -15,6 +15,15 @@
             <trans-unit id="tx_koningcomments_domain_model_comment.user">
                 <source>User</source>
             </trans-unit>
+            <trans-unit id="tx_koningcomments_domain_model_comment.nonuser_username">
+                <source>Name if not fe_user</source>
+            </trans-unit>
+            <trans-unit id="tx_koningcomments_domain_model_comment.nonuser_email">
+                <source>Email if not fe_user</source>
+            </trans-unit>
+            <trans-unit id="tx_koningcomments_domain_model_comment.nonuser_www">
+                <source>Website if not fe_user</source>
+            </trans-unit>
             <trans-unit id="tx_koningcomments_domain_model_comment.body">
                 <source>Body</source>
             </trans-unit>
